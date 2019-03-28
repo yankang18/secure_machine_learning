@@ -34,12 +34,12 @@ if __name__ == '__main__':
         num_batch = X.shape[0] // batch_size
 
         # if residual is 0, the last batch is a full batch. In other words, all batches have the same number of samples
-        last_left = batch_size
+        last_batch_size = batch_size
     else:
         num_batch = X.shape[0] // batch_size + 1
 
         # if residual is not 0, the last batch has 'residual' number of samples
-        last_left = residual
+        last_batch_size = residual
 
     print("# samples:", X.shape[0])
     print("batch_size:", batch_size)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     op_id = "logit"
     mul_ops = dict()
     mul_ops[op_id] = dict()
-    mul_ops[op_id]["last_left"] = last_left
+    mul_ops[op_id]["last_left"] = last_batch_size
     mul_ops[op_id]["left"] = batch_size
     mul_ops[op_id]["last_middle"] = X.shape[1]
     mul_ops[op_id]["middle"] = X.shape[1]
@@ -78,12 +78,16 @@ if __name__ == '__main__':
     party_b = PartyB()
     party_b.set_bt_map(party_b_bt_map)
 
+    w0, w1 = share(w)
+    party_a.init_model(w0)
+    party_b.init_model(w1)
+
     print("-"*20)
     for ep in range(num_epoch):
         for batch_i in range(num_batch):
             print("---- ep:", ep, ", batch: ", batch_i)
 
-            global_index = ep * num_epoch + batch_i
+            global_index = ep * num_batch + batch_i
 
             X_batch = X[batch_i*batch_size: batch_i*batch_size + batch_size, :]
 
@@ -93,13 +97,9 @@ if __name__ == '__main__':
 
             # TODO: sends X1 to the other party
             X0, X1 = share(X_batch)
-            w0, w1 = share(w)
 
             party_a.set_batch(X0, None)
             party_b.set_batch(X1, None)
-
-            party_a.init_model(w0)
-            party_b.init_model(w1)
 
             alpha_0, beta_0 = party_a.compute_alpha_beta_share(global_index, op_id)
             alpha_1, beta_1 = party_b.compute_alpha_beta_share(global_index, op_id)

@@ -4,8 +4,8 @@ import numpy as np
 
 class PartyA(object):
 
-    def __init__(self):
-        self.approx_rate = 0.01
+    def __init__(self, approx_rate=0.01):
+        self.approx_rate = approx_rate
         self.party_a_bt_map = None
         self.a_share_map = None
 
@@ -16,7 +16,6 @@ class PartyA(object):
         self.party_a_bt_map = party_a_bt_map
 
     def init_model(self, w0):
-        # TODO: may do copy
         self.w0 = np.copy(w0)
 
     def set_batch(self, X0, y0):
@@ -29,6 +28,8 @@ class PartyA(object):
         A0 = self.party_a_bt_map[global_index][op_id]["A0"]
         B0 = self.party_a_bt_map[global_index][op_id]["B0"]
         C0 = self.party_a_bt_map[global_index][op_id]["C0"]
+
+        print("A0, B0, C0", A0.shape, B0.shape, C0.shape)
 
         self.a_share_map = dict()
         self.a_share_map["is_party_a"] = True
@@ -64,11 +65,17 @@ class PartyA(object):
     def update_weights(self):
         self.w0 = self.w0 - self.learning_rate / self.batch_size * self.Z0
 
+    def get_weights(self):
+        return self.w0.copy()
+
+    def get_loss(self):
+        return np.mean(np.square(self.loss))
+
 
 class PartyB(object):
 
-    def __init__(self):
-        self.approx_rate = 0.01
+    def __init__(self, approx_rate=0.01):
+        self.approx_rate = approx_rate
         self.party_b_bt_map = None
         self.b_share_map = None
 
@@ -79,7 +86,6 @@ class PartyB(object):
         self.party_b_bt_map = party_b_bt_map
 
     def init_model(self, w1):
-        # TODO may do copy
         self.w1 = np.copy(w1)
 
     def set_batch(self, X1, y1):
@@ -98,8 +104,8 @@ class PartyB(object):
         self.b_share_map["As"] = A1
         self.b_share_map["Bs"] = B1
         self.b_share_map["Cs"] = C1
-        self.b_share_map["Xs"] = self.X1
-        self.b_share_map["Ys"] = self.w1
+        # self.b_share_map["Xs"] = self.X1
+        # self.b_share_map["Ys"] = self.w1
 
         # TODO: different operation come with different X and Y
         if op_id == "logit":
@@ -128,3 +134,60 @@ class PartyB(object):
 
     def update_weights(self):
         self.w1 = self.w1 - self.learning_rate / self.batch_size * self.Z1
+
+    def get_weights(self):
+        return self.w1.copy()
+
+    def get_loss(self):
+        return np.mean(np.square(self.loss))
+
+
+class SimpleLogisticRegression(object):
+
+    def __init__(self, approx_rate=0.01):
+        self.approx_rate = approx_rate
+        self.party_b_bt_map = None
+        self.b_share_map = None
+
+    def build(self, learning_rate=0.01):
+        self.learning_rate = learning_rate
+
+    def set_bt_map(self, party_b_bt_map):
+        self.party_b_bt_map = party_b_bt_map
+
+    def init_model(self, w):
+        self.w = np.copy(w)
+
+    def set_batch(self, X, y):
+        self.X = X
+        self.y = y
+        self.batch_size = self.X.shape[0]
+
+    def compute_logit(self):
+        self.Xw = np.dot(self.X, self.w)
+
+    def compute_prediction(self):
+        self.prediction = 0.5 + 0.5 * self.approx_rate * self.Xw
+        return self.prediction
+
+    def compute_loss(self):
+        self.loss = self.prediction - self.y
+
+    def compute_grad(self):
+        self.grad = np.dot(self.X.transpose(), self.loss)
+
+    def update_weights(self):
+        self.w = self.w - self.learning_rate / self.batch_size * self.grad
+
+    def get_weights(self):
+        return self.w.copy()
+
+    def get_logit(self):
+        return self.Xw.copy()
+
+    def get_grad(self):
+        return self.grad.copy()
+
+    def get_loss(self):
+        return np.mean(np.square(self.loss))
+        # return np.mean(self.loss)

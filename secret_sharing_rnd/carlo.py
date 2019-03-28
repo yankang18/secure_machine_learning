@@ -12,7 +12,8 @@ def schema_copy(bt_map):
 
 
 def carlo_deal_data(party_a_bt_map, party_b_bt_map, op_ids):
-    assert len(party_a_bt_map) is len(party_b_bt_map)
+    # print("len(party_a_bt_map) len(party_b_bt_map)", len(party_a_bt_map), len(party_b_bt_map))
+    assert len(party_a_bt_map) == len(party_b_bt_map)
 
     _party_a_bt_map = schema_copy(party_a_bt_map)
     _party_b_bt_map = schema_copy(party_b_bt_map)

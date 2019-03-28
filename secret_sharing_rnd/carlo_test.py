@@ -37,6 +37,8 @@ def create_beaver_triples(mul_ops, global_iters, num_batch):
             # p = val["middle"]
             q = val["right"]
 
+            print("k, p, q", k, p, q)
+
             # party A generate data
             A0 = generate_random_matrix(k, p)
             A00 = generate_random_matrix(k, p)
@@ -145,8 +147,8 @@ def create_beaver_triples(mul_ops, global_iters, num_batch):
             # compute C (only for testing purpose)
             C = C0 + C1
 
-            print("C: \n", C)
-            print("AB: \n", np.dot(A, B))
+            # print("C: \n", C)
+            # print("AB: \n", np.dot(A, B))
 
     return party_a_bt_map, party_b_bt_map
 

@@ -1,16 +1,26 @@
 import numpy as np
-from secret_sharing_rnd.secret_sharing_operations import share, mul
-from secret_sharing_rnd.carlo_test import create_beaver_triples
-
+import pandas as pd
+from sklearn.utils import shuffle
 
 if __name__ == '__main__':
 
-    n = 101 / 32
-    m = 101 // 32
-    _m = 101 % 32
+    df = pd.read_csv("../data/breast_homo_guest.csv")
+    data = df.values
+    print(df.head(5))
+    print(data.shape)
+    # print(data)
 
-    k = 3 % 0
-    print(n)
-    print(m)
-    print(_m)
-    print(k)
+    train = shuffle(data)
+
+    Xtrain = train[:, 2:]
+    Ytrain = train[:, 1].astype(np.int32)
+    Ytrain = Ytrain.reshape(-1, 1)
+    # Xtest = train[-1000:, 1:]
+    # Ytest = train[-1000:, 0:1].astype(np.int32)
+    # change the value type
+    # Xtrain = Xtrain.astype(np.float32)
+    # Xtest = Xtest.astype(np.float32)
+    print("Xtrain shape", Xtrain.shape)
+    print("Ytrain shape", Ytrain.shape)
+    # print(Xtrain)
+    # print(Ytrain)

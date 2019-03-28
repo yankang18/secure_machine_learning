@@ -35,12 +35,19 @@ def compute_mul_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
     Cs = share_map["Cs"]
     i = 0 if share_map["is_party_a"] else 1
 
-    print("is_party_a", share_map["is_party_a"])
-    print("alpha", alpha)
-    print("beta", beta)
-    print("As", As)
-    print("Bs", Bs)
-    print("Cs", Cs)
+    # print("is_party_a", share_map["is_party_a"])
+    # print("alpha", alpha)
+    # print("beta", beta)
+    # print("As", As)
+    # print("Bs", Bs)
+    # print("Cs", Cs)
+
+    # print("is_party_a", share_map["is_party_a"])
+    # print("alpha.shape", alpha.shape)
+    # print("beta.shape", beta.shape)
+    # print("As.shape", As.shape)
+    # print("Bs.shape", Bs.shape)
+    # print("Cs.shape", Cs.shape)
 
     Zs = i * np.dot(alpha, beta) + np.dot(As, beta) + np.dot(alpha, Bs) + Cs
     return Zs
