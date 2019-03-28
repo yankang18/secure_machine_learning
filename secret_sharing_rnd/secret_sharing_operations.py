@@ -14,7 +14,7 @@ def reconstruct(share0, share1):
     return share0 + share1
 
 
-def compute_alpha_beta_share(share_map):
+def local_compute_alpha_beta_share(share_map):
     As = share_map["As"]
     Bs = share_map["Bs"]
     Xs = share_map["Xs"]
@@ -35,13 +35,25 @@ def compute_mul_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
     Cs = share_map["Cs"]
     i = 0 if share_map["is_party_a"] else 1
 
+    print("is_party_a", share_map["is_party_a"])
+    print("alpha", alpha)
+    print("beta", beta)
+    print("As", As)
+    print("Bs", Bs)
+    print("Cs", Cs)
+
     Zs = i * np.dot(alpha, beta) + np.dot(As, beta) + np.dot(alpha, Bs) + Cs
     return Zs
 
 
 def mul(a_share_map, b_share_map):
-    alpha_0, beta_0 = compute_alpha_beta_share(a_share_map)
-    alpha_1, beta_1 = compute_alpha_beta_share(b_share_map)
+    alpha_0, beta_0 = local_compute_alpha_beta_share(a_share_map)
+    alpha_1, beta_1 = local_compute_alpha_beta_share(b_share_map)
+
+    print("alpha_0", alpha_0)
+    print("beta_0", beta_0)
+    print("alpha_1", alpha_1)
+    print("beta_1", beta_1)
 
     Z0 = compute_mul_share(alpha_0, alpha_1, beta_0, beta_1, a_share_map)
     Z1 = compute_mul_share(alpha_0, alpha_1, beta_0, beta_1, b_share_map)
