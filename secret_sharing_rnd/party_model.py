@@ -1,4 +1,4 @@
-from secret_sharing_rnd.secret_sharing_operations import local_compute_alpha_beta_share, compute_mul_share
+from secret_sharing_rnd.secret_sharing_operations import local_compute_alpha_beta_share, compute_matmul_share
 import numpy as np
 
 
@@ -50,8 +50,8 @@ class PartyA(object):
         self.alpha_0, self.beta_0 = local_compute_alpha_beta_share(self.a_share_map)
         return self.alpha_0, self.beta_0
 
-    def compute_mul_share(self, alpha_1, beta_1):
-        self.Z0 = compute_mul_share(self.alpha_0, alpha_1, self.beta_0, beta_1, self.a_share_map)
+    def compute_matmul_share(self, alpha_1, beta_1):
+        self.Z0 = compute_matmul_share(self.alpha_0, alpha_1, self.beta_0, beta_1, self.a_share_map)
         return self.Z0
 
     def compute_prediction(self):
@@ -121,7 +121,7 @@ class PartyB(object):
         return self.alpha_1, self.beta_1
 
     def compute_mul_share(self, alpha_0, beta_0):
-        self.Z1 = compute_mul_share(alpha_0, self.alpha_1, beta_0, self.beta_1, self.b_share_map)
+        self.Z1 = compute_matmul_share(alpha_0, self.alpha_1, beta_0, self.beta_1, self.b_share_map)
         return self.Z1
 
     def compute_prediction(self):

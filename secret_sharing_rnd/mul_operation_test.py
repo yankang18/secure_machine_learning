@@ -1,6 +1,7 @@
 import numpy as np
-from secret_sharing_rnd.secret_sharing_operations import share, mul
+from secret_sharing_rnd.secret_sharing_operations import share, matmul
 from secret_sharing_rnd.carlo_test import create_beaver_triples
+from secret_sharing_rnd.util import assert_matrix
 
 
 if __name__ == '__main__':
@@ -28,6 +29,7 @@ if __name__ == '__main__':
     mul_ops[op_id] = dict()
     mul_ops[op_id]["last_left"] = residual
     mul_ops[op_id]["left"] = batch_size
+    mul_ops[op_id]["last_middle"] = X.shape[1]
     mul_ops[op_id]["middle"] = X.shape[1]
     mul_ops[op_id]["right"] = w.shape[1]
 
@@ -85,7 +87,7 @@ if __name__ == '__main__':
             b_share_map["Ys"] = w1
             b_share_map["is_party_a"] = False
 
-            Z0, Z1 = mul(a_share_map, b_share_map)
+            Z0, Z1 = matmul(a_share_map, b_share_map)
 
             print("Z0 \n", Z0)
             print("Z1 \n", Z1)
@@ -95,3 +97,5 @@ if __name__ == '__main__':
             print("Z: \n", Z)
             print("Xw: \n", actual_Z)
             assert Z.shape == actual_Z.shape
+            assert_matrix(Z, actual_Z)
+            print("test passed !")

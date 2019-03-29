@@ -26,7 +26,7 @@ def local_compute_alpha_beta_share(share_map):
     return alpha_s, beta_s
 
 
-def compute_mul_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
+def compute_matmul_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
     alpha = reconstruct(alpha_0, alpha_1)
     beta = reconstruct(beta_0, beta_1)
 
@@ -53,7 +53,7 @@ def compute_mul_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
     return Zs
 
 
-def mul(a_share_map, b_share_map):
+def matmul(a_share_map, b_share_map):
     alpha_0, beta_0 = local_compute_alpha_beta_share(a_share_map)
     alpha_1, beta_1 = local_compute_alpha_beta_share(b_share_map)
 
@@ -62,7 +62,7 @@ def mul(a_share_map, b_share_map):
     print("alpha_1", alpha_1)
     print("beta_1", beta_1)
 
-    Z0 = compute_mul_share(alpha_0, alpha_1, beta_0, beta_1, a_share_map)
-    Z1 = compute_mul_share(alpha_0, alpha_1, beta_0, beta_1, b_share_map)
+    Z0 = compute_matmul_share(alpha_0, alpha_1, beta_0, beta_1, a_share_map)
+    Z1 = compute_matmul_share(alpha_0, alpha_1, beta_0, beta_1, b_share_map)
 
     return Z0, Z1

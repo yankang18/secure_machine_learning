@@ -1,5 +1,5 @@
 import numpy as np
-from secret_sharing_rnd.secret_sharing_operations import share, mul
+from secret_sharing_rnd.secret_sharing_operations import share, matmul
 from secret_sharing_rnd.carlo_test import create_beaver_triples
 from secret_sharing_rnd.party_model import PartyA, PartyB
 from secret_sharing_rnd.util import assert_matrix
@@ -104,7 +104,7 @@ if __name__ == '__main__':
             alpha_0, beta_0 = party_a.compute_alpha_beta_share(global_index, op_id)
             alpha_1, beta_1 = party_b.compute_alpha_beta_share(global_index, op_id)
 
-            Z0 = party_a.compute_mul_share(alpha_1, beta_1)
+            Z0 = party_a.compute_matmul_share(alpha_1, beta_1)
             Z1 = party_b.compute_mul_share(alpha_0, beta_0)
 
             print("Z0 \n", Z0)
