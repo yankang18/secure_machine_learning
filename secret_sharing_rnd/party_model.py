@@ -120,7 +120,7 @@ class PartyB(object):
         self.alpha_1, self.beta_1 = local_compute_alpha_beta_share(self.b_share_map)
         return self.alpha_1, self.beta_1
 
-    def compute_mul_share(self, alpha_0, beta_0):
+    def compute_matmul_share(self, alpha_0, beta_0):
         self.Z1 = compute_matmul_share(alpha_0, self.alpha_1, beta_0, self.beta_1, self.b_share_map)
         return self.Z1
 

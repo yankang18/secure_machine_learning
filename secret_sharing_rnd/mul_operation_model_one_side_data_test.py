@@ -105,7 +105,7 @@ if __name__ == '__main__':
             alpha_1, beta_1 = party_b.compute_alpha_beta_share(global_index, op_id)
 
             Z0 = party_a.compute_matmul_share(alpha_1, beta_1)
-            Z1 = party_b.compute_mul_share(alpha_0, beta_0)
+            Z1 = party_b.compute_matmul_share(alpha_0, beta_0)
 
             print("Z0 \n", Z0)
             print("Z1 \n", Z1)

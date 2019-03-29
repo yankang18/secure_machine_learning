@@ -133,7 +133,7 @@ def train():
             alpha_1, beta_1 = party_b.compute_alpha_beta_share(global_index, op_id_1)
 
             Z0 = party_a.compute_matmul_share(alpha_1, beta_1)
-            Z1 = party_b.compute_mul_share(alpha_0, beta_0)
+            Z1 = party_b.compute_matmul_share(alpha_0, beta_0)
 
             print(">>> ###### Test logit ################")
             # print("Z0 \n", Z0)
@@ -163,7 +163,7 @@ def train():
             alpha_1, beta_1 = party_b.compute_alpha_beta_share(global_index, op_id_2)
 
             G0 = party_a.compute_matmul_share(alpha_1, beta_1)
-            G1 = party_b.compute_mul_share(alpha_0, beta_0)
+            G1 = party_b.compute_matmul_share(alpha_0, beta_0)
 
             print(">>> ###### Test grad ################")
             # print("G0 \n", G0)
@@ -290,7 +290,7 @@ if __name__ == '__main__':
             alpha_1, beta_1 = party_b.compute_alpha_beta_share(global_index, op_id_1)
 
             Z0 = party_a.compute_matmul_share(alpha_1, beta_1)
-            Z1 = party_b.compute_mul_share(alpha_0, beta_0)
+            Z1 = party_b.compute_matmul_share(alpha_0, beta_0)
 
             pred0 = party_a.compute_prediction()
             pred1 = party_b.compute_prediction()

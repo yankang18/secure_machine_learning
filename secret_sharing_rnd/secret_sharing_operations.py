@@ -53,16 +53,16 @@ def compute_matmul_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
     return Zs
 
 
-def matmul(a_share_map, b_share_map):
-    alpha_0, beta_0 = local_compute_alpha_beta_share(a_share_map)
-    alpha_1, beta_1 = local_compute_alpha_beta_share(b_share_map)
+def compute_multiply_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
+    alpha = reconstruct(alpha_0, alpha_1)
+    beta = reconstruct(beta_0, beta_1)
 
-    print("alpha_0", alpha_0)
-    print("beta_0", beta_0)
-    print("alpha_1", alpha_1)
-    print("beta_1", beta_1)
+    As = share_map["As"]
+    Bs = share_map["Bs"]
+    Cs = share_map["Cs"]
+    i = 0 if share_map["is_party_a"] else 1
 
-    Z0 = compute_matmul_share(alpha_0, alpha_1, beta_0, beta_1, a_share_map)
-    Z1 = compute_matmul_share(alpha_0, alpha_1, beta_0, beta_1, b_share_map)
+    Zs = i * np.multiply(alpha, beta) + np.multiply(As, beta) + np.multiply(alpha, Bs) + Cs
+    return Zs
 
-    return Z0, Z1
+
