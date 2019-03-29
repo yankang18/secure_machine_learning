@@ -20,17 +20,17 @@ class TestCarloBeaverTriples(unittest.TestCase):
         mul_ops = dict()
         mul_ops[op_id_1] = dict()
         mul_ops[op_id_1]["mul_type"] = "matmul"
-        mul_ops[op_id_1]["last_left"] = 1
-        mul_ops[op_id_1]["left"] = 2
-        mul_ops[op_id_1]["middle"] = 3
-        mul_ops[op_id_1]["right"] = 1
+        mul_ops[op_id_1]["left_0"] = 2
+        mul_ops[op_id_1]["left_1"] = 3
+        mul_ops[op_id_1]["right_0"] = 3
+        mul_ops[op_id_1]["right_1"] = 1
 
         mul_ops[op_id_2] = dict()
         mul_ops[op_id_2]["mul_type"] = "matmul"
-        mul_ops[op_id_2]["last_left"] = 1
-        mul_ops[op_id_2]["left"] = 3
-        mul_ops[op_id_2]["middle"] = 2
-        mul_ops[op_id_2]["right"] = 3
+        mul_ops[op_id_2]["left_0"] = 3
+        mul_ops[op_id_2]["left_1"] = 2
+        mul_ops[op_id_2]["right_0"] = 2
+        mul_ops[op_id_2]["right_1"] = 3
 
         party_a_bt_map, party_b_bt_map = create_beaver_triples(mul_ops, global_iters=iters, num_batch=10)
 
@@ -70,17 +70,17 @@ class TestCarloBeaverTriples(unittest.TestCase):
         mul_ops = dict()
         mul_ops[op_id_1] = dict()
         mul_ops[op_id_1]["mul_type"] = "multiply"
-        mul_ops[op_id_1]["left"] = 3
-        mul_ops[op_id_1]["middle_0"] = 2
-        mul_ops[op_id_1]["middle_1"] = 3
-        mul_ops[op_id_1]["right"] = 2
+        mul_ops[op_id_1]["left_0"] = 3
+        mul_ops[op_id_1]["left_1"] = 2
+        mul_ops[op_id_1]["right_0"] = 3
+        mul_ops[op_id_1]["right_1"] = 2
 
         mul_ops[op_id_2] = dict()
         mul_ops[op_id_2]["mul_type"] = "multiply"
-        mul_ops[op_id_2]["left"] = 4
-        mul_ops[op_id_2]["middle_0"] = 3
-        mul_ops[op_id_2]["middle_1"] = 4
-        mul_ops[op_id_2]["right"] = 3
+        mul_ops[op_id_2]["left_0"] = 4
+        mul_ops[op_id_2]["left_1"] = 3
+        mul_ops[op_id_2]["right_0"] = 4
+        mul_ops[op_id_2]["right_1"] = 3
 
         party_a_bt_map, party_b_bt_map = create_beaver_triples(mul_ops, global_iters=iters, num_batch=10)
 

@@ -1,6 +1,6 @@
 import numpy as np
-from secret_sharing_rnd.secret_sharing_operations import share, matmul
-from secret_sharing_rnd.carlo_test import create_beaver_triples
+from secret_sharing_rnd.secret_sharing_operations import share
+from secret_sharing_rnd.test.beaver_triple_test import create_beaver_triples
 from secret_sharing_rnd.party_model import PartyA, PartyB
 from secret_sharing_rnd.util import assert_matrix
 
@@ -49,11 +49,15 @@ if __name__ == '__main__':
     op_id = "logit"
     mul_ops = dict()
     mul_ops[op_id] = dict()
-    mul_ops[op_id]["last_left"] = last_batch_size
-    mul_ops[op_id]["left"] = batch_size
-    mul_ops[op_id]["last_middle"] = X.shape[1]
-    mul_ops[op_id]["middle"] = X.shape[1]
-    mul_ops[op_id]["right"] = w.shape[1]
+    mul_ops[op_id]["mul_type"] = "matmul"
+    mul_ops[op_id]["left_0"] = batch_size
+    mul_ops[op_id]["left_1"] = X.shape[1]
+    mul_ops[op_id]["right_0"] = X.shape[1]
+    mul_ops[op_id]["right_1"] = w.shape[1]
+    mul_ops[op_id]["last_left_0"] = residual
+    mul_ops[op_id]["last_left_1"] = X.shape[1]
+    mul_ops[op_id]["last_right_0"] = X.shape[1]
+    mul_ops[op_id]["last_right_1"] = w.shape[1]
 
     num_epoch = 3
     global_iters = num_batch * num_epoch

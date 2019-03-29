@@ -3,40 +3,23 @@ import numpy as np
 from common_data import generate_random_matrix
 
 
-def get_matmul_matrix_dims(val, global_iter_index, num_batch):
+def get_matrix_dims(val, global_iter_index, num_batch):
     if (global_iter_index + 1) % num_batch == 0:
-        k = val["last_left"]
+        # if last batch
+        k = val["last_left_0"]
+        l = val["last_left_1"]
+        p = val["last_right_0"]
+        q = val["last_right_1"]
     else:
-        k = val["left"]
+        k = val["left_0"]
+        l = val["left_1"]
+        p = val["right_0"]
+        q = val["right_1"]
 
-    if (global_iter_index + 1) % num_batch == 0:
-        p = val["last_middle"]
-    else:
-        p = val["middle"]
-
-    q = val["right"]
-    return k, p, p, q
-
-
-def get_multiply_matrix_dims(val):
-    k = val["left"]
-    l = val["middle_0"]
-    p = val["middle_1"]
-    q = val["right"]
     return k, l, p, q
 
 
-def get_matrix_dims(val, global_iter_index, num_batch):
-    mul_type = val["mul_type"]
-    if mul_type == "matmul":
-        return get_matmul_matrix_dims(val, global_iter_index, num_batch)
-    elif mul_type == "multiply":
-        return get_multiply_matrix_dims(val)
-    else:
-        raise TypeError("does not support" + mul_type)
-
-
-def create_beaver_triples(mul_ops, global_iters, num_batch=None):
+def create_beaver_triples(mul_ops, global_iters, num_batch):
     """
 
     :param mul_ops:

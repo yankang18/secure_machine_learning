@@ -1,20 +1,16 @@
 import numpy as np
 
-from secret_sharing_rnd.carlo_test import create_beaver_triples
+from secret_sharing_rnd.test.beaver_triple_test import create_beaver_triples
 from secret_sharing_rnd.party_model import PartyA, PartyB, SimpleLogisticRegression
 from secret_sharing_rnd.secret_sharing_operations import share
 from secret_sharing_rnd.util import assert_matrix, read_data, read_data_2
 import matplotlib.pyplot as plt
 
-# def random_normal(data_shape):
-#     inits = np.random.randn(data_shape)
-#     return inits
-
 
 def train():
 
-    file_path = "../data/breast_homo_guest.csv"
-    file_path_2 = "../data/breast_homo_host.csv"
+    file_path = "../../data/breast_homo_guest.csv"
+    file_path_2 = "../../data/breast_homo_host.csv"
     X, y = read_data(file_path, file_path_2)
 
     # y = np.array([[1], [-1], [1], [-1], [1]])
@@ -51,22 +47,28 @@ def train():
     op_id_1 = "logit"
     op_id_2 = "grad"
 
-    ops = [op_id_1, op_id_2]
-
     mul_ops = dict()
     mul_ops[op_id_1] = dict()
-    mul_ops[op_id_1]["last_left"] = last_batch_size
-    mul_ops[op_id_1]["left"] = batch_size
-    mul_ops[op_id_1]["last_middle"] = X.shape[1]
-    mul_ops[op_id_1]["middle"] = X.shape[1]
-    mul_ops[op_id_1]["right"] = w.shape[1]
+    mul_ops[op_id_1]["mul_type"] = "matmul"
+    mul_ops[op_id_1]["left_0"] = batch_size
+    mul_ops[op_id_1]["left_1"] = X.shape[1]
+    mul_ops[op_id_1]["right_0"] = X.shape[1]
+    mul_ops[op_id_1]["right_1"] = w.shape[1]
+    mul_ops[op_id_1]["last_left_0"] = last_batch_size
+    mul_ops[op_id_1]["last_left_1"] = X.shape[1]
+    mul_ops[op_id_1]["last_right_0"] = X.shape[1]
+    mul_ops[op_id_1]["last_right_1"] = w.shape[1]
 
     mul_ops[op_id_2] = dict()
-    mul_ops[op_id_2]["last_left"] = X.shape[1]
-    mul_ops[op_id_2]["left"] = X.shape[1]
-    mul_ops[op_id_2]["last_middle"] = last_batch_size
-    mul_ops[op_id_2]["middle"] = batch_size
-    mul_ops[op_id_2]["right"] = y.shape[1]
+    mul_ops[op_id_2]["mul_type"] = "matmul"
+    mul_ops[op_id_2]["left_0"] = X.shape[1]
+    mul_ops[op_id_2]["left_1"] = batch_size
+    mul_ops[op_id_2]["right_0"] = batch_size
+    mul_ops[op_id_2]["right_1"] = w.shape[1]
+    mul_ops[op_id_2]["last_left_0"] = X.shape[1]
+    mul_ops[op_id_2]["last_left_1"] = last_batch_size
+    mul_ops[op_id_2]["last_right_0"] = last_batch_size
+    mul_ops[op_id_2]["last_right_1"] = w.shape[1]
 
     num_epoch = 65
     global_iters = num_batch * num_epoch
@@ -218,7 +220,7 @@ def train():
 if __name__ == '__main__':
     party_a, party_b = train()
 
-    file_path = "../data/breast_homo_test.csv"
+    file_path = "../../data/breast_homo_test.csv"
 
     X, y = read_data_2(file_path)
 
@@ -249,11 +251,15 @@ if __name__ == '__main__':
 
     mul_ops = dict()
     mul_ops[op_id_1] = dict()
-    mul_ops[op_id_1]["last_left"] = last_batch_size
-    mul_ops[op_id_1]["left"] = batch_size
-    mul_ops[op_id_1]["last_middle"] = X.shape[1]
-    mul_ops[op_id_1]["middle"] = X.shape[1]
-    mul_ops[op_id_1]["right"] = 1
+    mul_ops[op_id_1]["mul_type"] = "matmul"
+    mul_ops[op_id_1]["left_0"] = batch_size
+    mul_ops[op_id_1]["left_1"] = X.shape[1]
+    mul_ops[op_id_1]["right_0"] = X.shape[1]
+    mul_ops[op_id_1]["right_1"] = 1
+    mul_ops[op_id_1]["last_left_0"] = last_batch_size
+    mul_ops[op_id_1]["last_left_1"] = X.shape[1]
+    mul_ops[op_id_1]["last_right_0"] = X.shape[1]
+    mul_ops[op_id_1]["last_right_1"] = 1
 
     num_epoch = 1
     global_iters = num_batch * num_epoch
