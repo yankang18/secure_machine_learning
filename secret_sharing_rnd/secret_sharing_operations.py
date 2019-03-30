@@ -1,6 +1,6 @@
 import numpy as np
 
-from common_data import generate_random_matrix
+from secret_sharing_rnd.util import generate_random_matrix
 
 
 def share(X):

@@ -3,6 +3,19 @@ import pandas as pd
 from sklearn.utils import shuffle
 
 
+def generate_random_matrix(r, c):
+    # TODO: why generate random number like this??
+    a1 = np.random.rand(r, c)
+    a2 = -np.random.rand(r, c)
+    return a1 + a2
+
+
+def generate_random_3_dim_matrix(r, c, z):
+    a1 = np.random.rand(r, c, z)
+    a2 = -np.random.rand(r, c, z)
+    return a1 + a2
+
+
 def assert_matrix(M1, M2):
     assert M1.shape == M2.shape
     for i in range(M1.shape[0]):
