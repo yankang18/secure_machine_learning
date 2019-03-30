@@ -131,11 +131,11 @@ def train():
 
             # compute logit
             slr.compute_logit()
-            alpha_0, beta_0 = party_a.compute_alpha_beta_share(global_index, op_id_1)
-            alpha_1, beta_1 = party_b.compute_alpha_beta_share(global_index, op_id_1)
+            alpha_0, beta_0 = party_a.compute_shares_for_alpha_beta_of_computing_logit(global_index, op_id_1)
+            alpha_1, beta_1 = party_b.compute_shares_for_alpha_beta_of_computing_logit(global_index, op_id_1)
 
-            Z0 = party_a.compute_matmul_share(alpha_1, beta_1)
-            Z1 = party_b.compute_matmul_share(alpha_0, beta_0)
+            Z0 = party_a.compute_share_for_logit(alpha_1, beta_1)
+            Z1 = party_b.compute_share_for_logit(alpha_0, beta_0)
 
             print(">>> ###### Test logit ################")
             # print("Z0 \n", Z0)
@@ -161,11 +161,11 @@ def train():
 
             # compute grad
             slr.compute_grad()
-            alpha_0, beta_0 = party_a.compute_alpha_beta_share(global_index, op_id_2)
-            alpha_1, beta_1 = party_b.compute_alpha_beta_share(global_index, op_id_2)
+            alpha_0, beta_0 = party_a.compute_shares_for_alpha_beta_of_computing_grad(global_index, op_id_2)
+            alpha_1, beta_1 = party_b.compute_shares_for_alpha_beta_of_computing_grad(global_index, op_id_2)
 
-            G0 = party_a.compute_matmul_share(alpha_1, beta_1)
-            G1 = party_b.compute_matmul_share(alpha_0, beta_0)
+            G0 = party_a.compute_share_for_grad(alpha_1, beta_1)
+            G1 = party_b.compute_share_for_grad(alpha_0, beta_0)
 
             print(">>> ###### Test grad ################")
             # print("G0 \n", G0)
@@ -292,11 +292,11 @@ if __name__ == '__main__':
             party_a.set_batch(X0, y0)
             party_b.set_batch(X1, y1)
 
-            alpha_0, beta_0 = party_a.compute_alpha_beta_share(global_index, op_id_1)
-            alpha_1, beta_1 = party_b.compute_alpha_beta_share(global_index, op_id_1)
+            alpha_0, beta_0 = party_a.compute_shares_for_alpha_beta_of_computing_logit(global_index, op_id_1)
+            alpha_1, beta_1 = party_b.compute_shares_for_alpha_beta_of_computing_logit(global_index, op_id_1)
 
-            Z0 = party_a.compute_matmul_share(alpha_1, beta_1)
-            Z1 = party_b.compute_matmul_share(alpha_0, beta_0)
+            Z0 = party_a.compute_share_for_logit(alpha_1, beta_1)
+            Z1 = party_b.compute_share_for_logit(alpha_0, beta_0)
 
             pred0 = party_a.compute_prediction()
             pred1 = party_b.compute_prediction()

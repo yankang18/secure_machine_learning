@@ -2,144 +2,108 @@ from secret_sharing_rnd.secret_sharing_operations import local_compute_alpha_bet
 import numpy as np
 
 
-class PartyA(object):
+class BaseParty(object):
 
     def __init__(self, approx_rate=0.01):
         self.approx_rate = approx_rate
-        self.party_a_bt_map = None
-        self.a_share_map = None
+        self.beaver_triple_share_map = None
 
     def build(self, learning_rate=0.01):
         self.learning_rate = learning_rate
+
+    def init_model(self, w_s):
+        self.w_s = np.copy(w_s)
+
+    def set_batch(self, X_s, y_s):
+        self.X_s = X_s
+        self.y_s = y_s
+        self.batch_size = self.X_s.shape[0]
+
+    def _prepare_beaver_triple(self, global_index, op_id):
+        pass
+
+    def _set_beaver_triple(self, As, Bs, Cs, is_party_a):
+        print("As, Bs, Cs", As.shape, Bs.shape, Cs.shape)
+        self.beaver_triple_share_map = dict()
+        self.beaver_triple_share_map["is_party_a"] = is_party_a
+        self.beaver_triple_share_map["As"] = As
+        self.beaver_triple_share_map["Bs"] = Bs
+        self.beaver_triple_share_map["Cs"] = Cs
+
+    def compute_shares_for_alpha_beta_of_computing_logit(self, global_index, op_id=None):
+        op_id = "logit"
+        self._prepare_beaver_triple(global_index, op_id)
+        self.beaver_triple_share_map["Xs"] = self.X_s
+        self.beaver_triple_share_map["Ys"] = self.w_s
+        self.alpha_s, self.beta_s = local_compute_alpha_beta_share(self.beaver_triple_share_map)
+        return self.alpha_s, self.beta_s
+
+    def compute_shares_for_alpha_beta_of_computing_grad(self, global_index, op_id=None):
+        op_id = "grad"
+        self._prepare_beaver_triple(global_index, op_id)
+        self.beaver_triple_share_map["Xs"] = self.X_s.transpose()
+        self.beaver_triple_share_map["Ys"] = self.loss_s
+        self.alpha_s, self.beta_s = local_compute_alpha_beta_share(self.beaver_triple_share_map)
+        return self.alpha_s, self.beta_s
+
+    def compute_share_for_logit(self, alpha_t, beta_t):
+        self.logit_s = compute_matmul_share(self.alpha_s, alpha_t, self.beta_s, beta_t, self.beaver_triple_share_map)
+        return self.logit_s
+
+    def compute_share_for_grad(self, alpha_t, beta_t):
+        self.grad_s = compute_matmul_share(self.alpha_s, alpha_t, self.beta_s, beta_t, self.beaver_triple_share_map)
+        return self.grad_s
+
+    def compute_prediction(self):
+        i = 0 if self.beaver_triple_share_map["is_party_a"] else 1
+        self.prediction_s = 0.5 * i + 0.5 * self.approx_rate * self.logit_s
+        return self.prediction_s
+
+    def compute_loss(self):
+        self.loss_s = self.prediction_s - self.y_s
+
+    def update_weights(self):
+        self.w_s = self.w_s - self.learning_rate / self.batch_size * self.grad_s
+
+    def get_weights(self):
+        return self.w_s.copy()
+
+    def get_loss(self):
+        return np.mean(np.square(self.loss_s))
+
+
+class PartyA(BaseParty):
+
+    def __init__(self, approx_rate=0.01):
+        super(PartyA, self).__init__(approx_rate)
+        self.party_a_bt_map = None
 
     def set_bt_map(self, party_a_bt_map):
         self.party_a_bt_map = party_a_bt_map
 
-    def init_model(self, w0):
-        self.w0 = np.copy(w0)
-
-    def set_batch(self, X0, y0):
-        self.X0 = X0
-        self.y0 = y0
-        self.batch_size = self.X0.shape[0]
-
-    def compute_alpha_beta_share(self, global_index, op_id):
+    def _prepare_beaver_triple(self, global_index, op_id):
         # get beaver triple for operation:op_id at iteration:global_index
         A0 = self.party_a_bt_map[global_index][op_id]["A0"]
         B0 = self.party_a_bt_map[global_index][op_id]["B0"]
         C0 = self.party_a_bt_map[global_index][op_id]["C0"]
-
-        print("A0, B0, C0", A0.shape, B0.shape, C0.shape)
-
-        self.a_share_map = dict()
-        self.a_share_map["is_party_a"] = True
-        self.a_share_map["As"] = A0
-        self.a_share_map["Bs"] = B0
-        self.a_share_map["Cs"] = C0
-
-        # TODO: different operation come with different X and Y
-        if op_id == "logit":
-            self.a_share_map["Xs"] = self.X0
-            self.a_share_map["Ys"] = self.w0
-        elif op_id == "grad":
-            self.a_share_map["Xs"] = self.X0.transpose()
-            self.a_share_map["Ys"] = self.loss
-        else:
-            ValueError("Does not support", op_id)
-
-        self.alpha_0, self.beta_0 = local_compute_alpha_beta_share(self.a_share_map)
-        return self.alpha_0, self.beta_0
-
-    def compute_matmul_share(self, alpha_1, beta_1):
-        self.Z0 = compute_matmul_share(self.alpha_0, alpha_1, self.beta_0, beta_1, self.a_share_map)
-        return self.Z0
-
-    def compute_prediction(self):
-        i = 0 if self.a_share_map["is_party_a"] else 1
-        self.prediction0 = 0.5 * i + 0.5 * self.approx_rate * self.Z0
-        return self.prediction0
-
-    def compute_loss(self):
-        self.loss = self.prediction0 - self.y0
-
-    def update_weights(self):
-        self.w0 = self.w0 - self.learning_rate / self.batch_size * self.Z0
-
-    def get_weights(self):
-        return self.w0.copy()
-
-    def get_loss(self):
-        return np.mean(np.square(self.loss))
+        self._set_beaver_triple(A0, B0, C0, True)
 
 
-class PartyB(object):
+class PartyB(BaseParty):
 
     def __init__(self, approx_rate=0.01):
-        self.approx_rate = approx_rate
+        super(PartyB, self).__init__(approx_rate)
         self.party_b_bt_map = None
-        self.b_share_map = None
-
-    def build(self, learning_rate=0.01):
-        self.learning_rate = learning_rate
 
     def set_bt_map(self, party_b_bt_map):
         self.party_b_bt_map = party_b_bt_map
 
-    def init_model(self, w1):
-        self.w1 = np.copy(w1)
-
-    def set_batch(self, X1, y1):
-        self.X1 = X1
-        self.y1 = y1
-        self.batch_size = self.X1.shape[0]
-
-    def compute_alpha_beta_share(self, global_index, op_id):
+    def _prepare_beaver_triple(self, global_index, op_id):
         # get beaver triple for operation:op_id at iteration:global_index
         A1 = self.party_b_bt_map[global_index][op_id]["A1"]
         B1 = self.party_b_bt_map[global_index][op_id]["B1"]
         C1 = self.party_b_bt_map[global_index][op_id]["C1"]
-
-        self.b_share_map = dict()
-        self.b_share_map["is_party_a"] = False
-        self.b_share_map["As"] = A1
-        self.b_share_map["Bs"] = B1
-        self.b_share_map["Cs"] = C1
-        # self.b_share_map["Xs"] = self.X1
-        # self.b_share_map["Ys"] = self.w1
-
-        # TODO: different operation come with different X and Y
-        if op_id == "logit":
-            self.b_share_map["Xs"] = self.X1
-            self.b_share_map["Ys"] = self.w1
-        elif op_id == "grad":
-            self.b_share_map["Xs"] = self.X1.transpose()
-            self.b_share_map["Ys"] = self.loss
-        else:
-            ValueError("Does not support", op_id)
-
-        self.alpha_1, self.beta_1 = local_compute_alpha_beta_share(self.b_share_map)
-        return self.alpha_1, self.beta_1
-
-    def compute_matmul_share(self, alpha_0, beta_0):
-        self.Z1 = compute_matmul_share(alpha_0, self.alpha_1, beta_0, self.beta_1, self.b_share_map)
-        return self.Z1
-
-    def compute_prediction(self):
-        i = 0 if self.b_share_map["is_party_a"] else 1
-        self.prediction1 = 0.5 * i + 0.5 * self.approx_rate * self.Z1
-        return self.prediction1
-
-    def compute_loss(self):
-        self.loss = self.prediction1 - self.y1
-
-    def update_weights(self):
-        self.w1 = self.w1 - self.learning_rate / self.batch_size * self.Z1
-
-    def get_weights(self):
-        return self.w1.copy()
-
-    def get_loss(self):
-        return np.mean(np.square(self.loss))
+        self._set_beaver_triple(A1, B1, C1, False)
 
 
 class SimpleLogisticRegression(object):
