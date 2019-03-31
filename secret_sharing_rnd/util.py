@@ -24,6 +24,12 @@ def assert_matrix(M1, M2):
             assert round(M1[i][j], 4) == round(M2[i][j], 4)
 
 
+def assert_array(M1, M2):
+    assert M1.shape == M2.shape
+    for i in range(M1.shape[0]):
+            assert round(M1[i], 4) == round(M2[i], 4)
+
+
 def read_data_2(file_path):
     df = pd.read_csv(file_path)
     data = df.values

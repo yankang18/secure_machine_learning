@@ -53,6 +53,11 @@ def compute_matmul_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
     return Zs
 
 
+def compute_sum_of_matmul_share(alpha_0, alpha_1, beta_0, beta_1, share_map, axis=None):
+    Zs = compute_matmul_share(alpha_0, alpha_1, beta_0, beta_1, share_map)
+    return np.sum(Zs, axis=axis)
+
+
 def compute_multiply_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
     alpha = reconstruct(alpha_0, alpha_1)
     beta = reconstruct(beta_0, beta_1)
@@ -66,3 +71,6 @@ def compute_multiply_share(alpha_0, alpha_1, beta_0, beta_1, share_map):
     return Zs
 
 
+def compute_sum_of_multiply_share(alpha_0, alpha_1, beta_0, beta_1, share_map, axis=None):
+    Zs = compute_multiply_share(alpha_0, alpha_1, beta_0, beta_1, share_map)
+    return np.sum(Zs, axis=axis)
