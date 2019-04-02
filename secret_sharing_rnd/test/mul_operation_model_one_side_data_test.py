@@ -54,6 +54,7 @@ class TestPartyModel(unittest.TestCase):
         mul_ops = dict()
         mul_ops[op_id] = dict()
         mul_ops[op_id]["mul_type"] = "matmul"
+        mul_ops[op_id]["num_dim"] = 2
         mul_ops[op_id]["left_0"] = batch_size
         mul_ops[op_id]["left_1"] = X.shape[1]
         mul_ops[op_id]["right_0"] = X.shape[1]

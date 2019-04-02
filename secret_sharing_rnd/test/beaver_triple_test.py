@@ -20,6 +20,7 @@ class TestCarloBeaverTriples(unittest.TestCase):
         mul_ops = dict()
         mul_ops[op_id_1] = dict()
         mul_ops[op_id_1]["mul_type"] = "matmul"
+        mul_ops[op_id_1]["num_dim"] = 2
         mul_ops[op_id_1]["left_0"] = 2
         mul_ops[op_id_1]["left_1"] = 3
         mul_ops[op_id_1]["right_0"] = 3
@@ -27,6 +28,7 @@ class TestCarloBeaverTriples(unittest.TestCase):
 
         mul_ops[op_id_2] = dict()
         mul_ops[op_id_2]["mul_type"] = "matmul"
+        mul_ops[op_id_2]["num_dim"] = 2
         mul_ops[op_id_2]["left_0"] = 3
         mul_ops[op_id_2]["left_1"] = 2
         mul_ops[op_id_2]["right_0"] = 2
@@ -70,6 +72,7 @@ class TestCarloBeaverTriples(unittest.TestCase):
         mul_ops = dict()
         mul_ops[op_id_1] = dict()
         mul_ops[op_id_1]["mul_type"] = "multiply"
+        mul_ops[op_id_1]["num_dim"] = 2
         mul_ops[op_id_1]["left_0"] = 3
         mul_ops[op_id_1]["left_1"] = 2
         mul_ops[op_id_1]["right_0"] = 3
@@ -77,6 +80,7 @@ class TestCarloBeaverTriples(unittest.TestCase):
 
         mul_ops[op_id_2] = dict()
         mul_ops[op_id_2]["mul_type"] = "multiply"
+        mul_ops[op_id_2]["num_dim"] = 2
         mul_ops[op_id_2]["left_0"] = 4
         mul_ops[op_id_2]["left_1"] = 3
         mul_ops[op_id_2]["right_0"] = 4

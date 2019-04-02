@@ -4,7 +4,6 @@ from sklearn.utils import shuffle
 
 
 def generate_random_matrix(r, c):
-    # TODO: why generate random number like this??
     a1 = np.random.rand(r, c)
     a2 = -np.random.rand(r, c)
     return a1 + a2
