@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from secret_sharing_rnd.carlo import create_beaver_triples
+from secret_sharing_rnd.beaver_triple import create_beaver_triples
 from secret_sharing_rnd.util import assert_matrix
 
 

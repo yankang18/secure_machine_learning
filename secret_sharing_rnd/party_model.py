@@ -2,7 +2,7 @@ from secret_sharing_rnd.secret_sharing_operations import local_compute_alpha_bet
 import numpy as np
 
 
-class BaseParty(object):
+class SecureSharingParty(object):
 
     def __init__(self, approx_rate=0.01):
         self.approx_rate = approx_rate
@@ -72,7 +72,7 @@ class BaseParty(object):
         return np.mean(np.square(self.loss_s))
 
 
-class PartyA(BaseParty):
+class PartyA(SecureSharingParty):
 
     def __init__(self, approx_rate=0.01):
         super(PartyA, self).__init__(approx_rate)
@@ -89,7 +89,7 @@ class PartyA(BaseParty):
         self._set_beaver_triple(A0, B0, C0, True)
 
 
-class PartyB(BaseParty):
+class PartyB(SecureSharingParty):
 
     def __init__(self, approx_rate=0.01):
         super(PartyB, self).__init__(approx_rate)

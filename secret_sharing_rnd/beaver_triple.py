@@ -3,7 +3,7 @@ import numpy as np
 from secret_sharing_rnd.util import generate_random_matrix
 
 
-def get_matrix_dims(val, global_iter_index, num_batch):
+def get_matrix_shapes(val, global_iter_index, num_batch):
     if (global_iter_index + 1) % num_batch == 0:
         # if last batch
         k = val["last_left_0"]
@@ -19,6 +19,127 @@ def get_matrix_dims(val, global_iter_index, num_batch):
     return k, l, p, q
 
 
+def fill_beaver_triple_shape(mul_ops: dict, *, X_shape, Y_shape, batch_size, op_id, mul_type, batch_axis=0):
+    assert len(X_shape) == len(Y_shape)
+
+    num_dim = len(X_shape)
+
+    residual = X_shape[0] % batch_size
+    if residual == 0:
+        # if residual is 0, the number of samples is in multiples of batch_size.
+        # Thus, we can directly use the real floor division operator "//" to compute
+        # the num_batch
+        num_batch = X_shape[0] // batch_size
+
+        # if residual is 0, the last batch is a full batch.
+        # In other words, all batches have the same number of samples
+        last_batch_size = batch_size
+    else:
+        # if residual is not 0,
+        num_batch = X_shape[0] // batch_size + 1
+
+        # if residual is not 0, the last batch has 'residual' number of samples
+        last_batch_size = residual
+
+    mul_ops[op_id] = dict()
+    if mul_type == "matmul":
+        if num_dim == 2:
+            if batch_axis == 0:
+                mul_ops[op_id]["mul_type"] = "matmul"
+                mul_ops[op_id]["left_0"] = batch_size
+                mul_ops[op_id]["left_1"] = X_shape[1]
+                mul_ops[op_id]["right_0"] = Y_shape[0]
+                mul_ops[op_id]["right_1"] = Y_shape[1]
+
+                mul_ops[op_id]["last_left_0"] = last_batch_size
+                mul_ops[op_id]["last_left_1"] = X_shape[1]
+                mul_ops[op_id]["last_right_0"] = Y_shape[0]
+                mul_ops[op_id]["last_right_1"] = Y_shape[1]
+            elif batch_axis == 1:
+                mul_ops[op_id]["mul_type"] = "matmul"
+                mul_ops[op_id]["left_0"] = X_shape[0]
+                mul_ops[op_id]["left_1"] = batch_size
+                mul_ops[op_id]["right_0"] = batch_size
+                mul_ops[op_id]["right_1"] = Y_shape[1]
+                mul_ops[op_id]["last_left_0"] = X_shape[0]
+                mul_ops[op_id]["last_left_1"] = last_batch_size
+                mul_ops[op_id]["last_right_0"] = last_batch_size
+                mul_ops[op_id]["last_right_1"] = Y_shape[1]
+            else:
+                raise TypeError(
+                    "does not support batch_axis {0} for {1} operation with {2} number of dimensions".format(
+                        batch_axis, mul_type, num_dim))
+
+        elif num_dim == 3:
+            if batch_axis == 0:
+                mul_ops[op_id]["mul_type"] = "matmul"
+                mul_ops[op_id]["left_0"] = batch_size
+                mul_ops[op_id]["left_1"] = X_shape[1]
+                mul_ops[op_id]["left_2"] = X_shape[2]
+                mul_ops[op_id]["right_0"] = Y_shape[0]
+                mul_ops[op_id]["right_1"] = Y_shape[1]
+                mul_ops[op_id]["right_2"] = Y_shape[2]
+
+                mul_ops[op_id]["last_left_0"] = last_batch_size
+                mul_ops[op_id]["last_left_1"] = X_shape[1]
+                mul_ops[op_id]["last_left_2"] = X_shape[2]
+                mul_ops[op_id]["last_right_0"] = Y_shape[0]
+                mul_ops[op_id]["last_right_1"] = Y_shape[1]
+                mul_ops[op_id]["last_right_2"] = Y_shape[2]
+            else:
+                raise TypeError(
+                    "does not support batch_axis {0} for {1} operation with {2} number of dimensions".format(
+                        batch_axis, mul_type, num_dim))
+        else:
+            raise TypeError("does not support num_dim {0} for mul_type {1}".format(num_dim, mul_type))
+
+    elif mul_type == "multiply":
+        assert X_shape == Y_shape
+        if num_dim == 2:
+            if batch_axis == 0:
+                mul_ops[op_id]["mul_type"] = "multiply"
+                mul_ops[op_id]["left_0"] = batch_size
+                mul_ops[op_id]["left_1"] = X_shape[1]
+                mul_ops[op_id]["right_0"] = batch_size
+                mul_ops[op_id]["right_1"] = X_shape[1]
+
+                mul_ops[op_id]["last_left_0"] = last_batch_size
+                mul_ops[op_id]["last_left_1"] = Y_shape[1]
+                mul_ops[op_id]["last_right_0"] = last_batch_size
+                mul_ops[op_id]["last_right_1"] = Y_shape[1]
+            else:
+                raise TypeError(
+                    "does not support batch_axis {0} for {1} operation with {2} number of dimensions".format(
+                        batch_axis, mul_type, num_dim))
+
+        elif num_dim == 3:
+            if batch_axis == 0:
+                mul_ops[op_id]["mul_type"] = "multiply"
+                mul_ops[op_id]["left_0"] = batch_size
+                mul_ops[op_id]["left_1"] = X_shape[1]
+                mul_ops[op_id]["left_2"] = X_shape[2]
+                mul_ops[op_id]["right_0"] = batch_size
+                mul_ops[op_id]["right_1"] = Y_shape[1]
+                mul_ops[op_id]["right_2"] = Y_shape[2]
+
+                mul_ops[op_id]["last_left_0"] = last_batch_size
+                mul_ops[op_id]["last_left_1"] = X_shape[1]
+                mul_ops[op_id]["last_left_2"] = X_shape[2]
+                mul_ops[op_id]["last_right_0"] = last_batch_size
+                mul_ops[op_id]["last_right_1"] = Y_shape[1]
+                mul_ops[op_id]["last_right_2"] = Y_shape[2]
+            else:
+                raise TypeError(
+                    "does not support batch_axis {0} for {1} operation with {2} number of dimensions".format(
+                        batch_axis, mul_type, num_dim))
+        else:
+            raise TypeError("does not support num_dim {0} for mul_type {1}".format(num_dim, mul_type))
+    else:
+        raise TypeError("does not support ", mul_type)
+
+    return num_batch
+
+
 def create_beaver_triples(mul_ops, global_iters, num_batch):
     """
 
@@ -26,7 +147,7 @@ def create_beaver_triples(mul_ops, global_iters, num_batch):
     :param global_iters:  start from 0
     :return:
     """
-
+    print("global_iters, num_batch", global_iters, num_batch)
     party_a_bt_map = [dict() for _ in range(global_iters)]
     party_a_bt_map_to_carlo = [dict() for _ in range(global_iters)]
     party_a_bt_map_to_b = [dict() for _ in range(global_iters)]
@@ -38,7 +159,7 @@ def create_beaver_triples(mul_ops, global_iters, num_batch):
     for i in range(global_iters):
 
         for op_id, val in mul_ops.items():
-            k, l, p, q = get_matrix_dims(val=val, global_iter_index=i, num_batch=num_batch)
+            k, l, p, q = get_matrix_shapes(val=val, global_iter_index=i, num_batch=num_batch)
 
             print("k, p, l, q", k, l, p, q)
 

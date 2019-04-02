@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from secret_sharing_rnd.carlo import create_beaver_triples
+from secret_sharing_rnd.beaver_triple import fill_beaver_triple_shape, create_beaver_triples
 from secret_sharing_rnd.secret_sharing_operations import share, local_compute_alpha_beta_share, compute_matmul_share, \
     compute_multiply_share, compute_sum_of_matmul_share, compute_sum_of_multiply_share
 from secret_sharing_rnd.util import assert_matrix, assert_array
@@ -58,52 +58,6 @@ def sum_multiply(a_share_map, b_share_map, axis=None):
     return Z0, Z1
 
 
-def prepare_beaver_triples(X, Y, op_id, mul_type):
-    batch_size = 2
-    num_batch = X.shape[0] // batch_size + 1
-    residual = X.shape[0] % batch_size
-
-    # op_id = "logit"
-    mul_ops = dict()
-    mul_ops[op_id] = dict()
-    if mul_type == "matmul":
-
-        mul_ops[op_id]["mul_type"] = "matmul"
-        mul_ops[op_id]["left_0"] = batch_size
-        mul_ops[op_id]["left_1"] = X.shape[1]
-        mul_ops[op_id]["right_0"] = X.shape[1]
-        mul_ops[op_id]["right_1"] = Y.shape[1]
-
-        mul_ops[op_id]["last_left_0"] = residual
-        mul_ops[op_id]["last_left_1"] = X.shape[1]
-        mul_ops[op_id]["last_right_0"] = X.shape[1]
-        mul_ops[op_id]["last_right_1"] = Y.shape[1]
-
-    elif mul_type == "multiply":
-
-        mul_ops[op_id]["mul_type"] = "multiply"
-        mul_ops[op_id]["left_0"] = batch_size
-        mul_ops[op_id]["left_1"] = X.shape[1]
-        mul_ops[op_id]["right_0"] = batch_size
-        mul_ops[op_id]["right_1"] = X.shape[1]
-
-        mul_ops[op_id]["last_left_0"] = residual
-        mul_ops[op_id]["last_left_1"] = X.shape[1]
-        mul_ops[op_id]["last_right_0"] = residual
-        mul_ops[op_id]["last_right_1"] = X.shape[1]
-    else:
-        raise TypeError("does not support ", mul_type)
-
-    num_epoch = 3
-    global_iters = num_batch * num_epoch
-
-    print("num_batch:", num_batch)
-    print("global_iters", global_iters)
-
-    party_a_bt_map, party_b_bt_map = create_beaver_triples(mul_ops, global_iters=global_iters, num_batch=num_batch)
-    return party_a_bt_map, party_b_bt_map, num_batch, batch_size
-
-
 def create_share_map_for_party_a(*, party_bt_map, global_index, op_id, X0, Y0):
     A0 = party_bt_map[global_index][op_id]["A0"]
     B0 = party_bt_map[global_index][op_id]["B0"]
@@ -149,13 +103,18 @@ class TestCarloBeaverTriplesBasedMul(unittest.TestCase):
         print("w shape", w.shape)
 
         op_id = "logit"
-        party_a_bt_map, party_b_bt_map, num_batch, batch_size = prepare_beaver_triples(X, w, op_id, "matmul")
-
+        mul_ops = dict()
+        batch_size = 2
         num_epoch = 3
-        global_iters = num_batch * num_epoch
 
-        print("num_batch:", num_batch)
-        print("global_iters", global_iters)
+        num_batch = fill_beaver_triple_shape(mul_ops,
+                                             X_shape=X.shape,
+                                             Y_shape=w.shape,
+                                             batch_size=batch_size,
+                                             op_id=op_id,
+                                             mul_type="matmul")
+        global_iters = num_batch * num_epoch
+        party_a_bt_map, party_b_bt_map = create_beaver_triples(mul_ops, global_iters=global_iters, num_batch=num_batch)
 
         print("-" * 20)
         for ep in range(num_epoch):
@@ -206,13 +165,17 @@ class TestCarloBeaverTriplesBasedMul(unittest.TestCase):
         print("w shape", w.shape)
 
         op_id = "logit"
-        party_a_bt_map, party_b_bt_map, num_batch, batch_size = prepare_beaver_triples(X, w, op_id, "matmul")
-
+        mul_ops = dict()
+        batch_size = 2
         num_epoch = 3
+        num_batch = fill_beaver_triple_shape(mul_ops,
+                                             X_shape=X.shape,
+                                             Y_shape=w.shape,
+                                             batch_size=batch_size,
+                                             op_id=op_id,
+                                             mul_type="matmul")
         global_iters = num_batch * num_epoch
-
-        print("num_batch:", num_batch)
-        print("global_iters", global_iters)
+        party_a_bt_map, party_b_bt_map = create_beaver_triples(mul_ops, global_iters=global_iters, num_batch=num_batch)
 
         print("-" * 20)
         for ep in range(num_epoch):
@@ -264,16 +227,17 @@ class TestCarloBeaverTriplesBasedMul(unittest.TestCase):
                       [0.2, 0.5, 0.2]])
 
         op_id = "logit"
-        party_a_bt_map, party_b_bt_map, num_batch, batch_size = prepare_beaver_triples(X, Y, op_id, "multiply")
-
+        mul_ops = dict()
+        batch_size = 2
         num_epoch = 3
+        num_batch = fill_beaver_triple_shape(mul_ops,
+                                             X_shape=X.shape,
+                                             Y_shape=Y.shape,
+                                             batch_size=batch_size,
+                                             op_id=op_id,
+                                             mul_type="multiply")
         global_iters = num_batch * num_epoch
-        print("global_iters", global_iters)
-
-        # print("party_a_bt_map:")
-        # print(party_a_bt_map)
-        # print("party_b_bt_map:")
-        # print(party_b_bt_map)
+        party_a_bt_map, party_b_bt_map = create_beaver_triples(mul_ops, global_iters=global_iters, num_batch=num_batch)
 
         print("-" * 20)
         for ep in range(num_epoch):
@@ -326,16 +290,17 @@ class TestCarloBeaverTriplesBasedMul(unittest.TestCase):
                       [0.2, 0.5, 0.2]])
 
         op_id = "logit"
-        party_a_bt_map, party_b_bt_map, num_batch, batch_size = prepare_beaver_triples(X, Y, op_id, "multiply")
-
+        mul_ops = dict()
+        batch_size = 2
         num_epoch = 3
+        num_batch = fill_beaver_triple_shape(mul_ops,
+                                             X_shape=X.shape,
+                                             Y_shape=Y.shape,
+                                             batch_size=batch_size,
+                                             op_id=op_id,
+                                             mul_type="multiply")
         global_iters = num_batch * num_epoch
-        print("global_iters", global_iters)
-
-        # print("party_a_bt_map:")
-        # print(party_a_bt_map)
-        # print("party_b_bt_map:")
-        # print(party_b_bt_map)
+        party_a_bt_map, party_b_bt_map = create_beaver_triples(mul_ops, global_iters=global_iters, num_batch=num_batch)
 
         print("-" * 20)
         for ep in range(num_epoch):
