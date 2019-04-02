@@ -108,10 +108,10 @@ class TestCarloBeaverTriplesBasedMul(unittest.TestCase):
         num_epoch = 3
 
         num_batch = fill_beaver_triple_shape(mul_ops,
+                                             op_id=op_id,
                                              X_shape=X.shape,
                                              Y_shape=w.shape,
                                              batch_size=batch_size,
-                                             op_id=op_id,
                                              mul_type="matmul")
         global_iters = num_batch * num_epoch
         party_a_bt_map, party_b_bt_map = create_beaver_triples(mul_ops, global_iters=global_iters, num_batch=num_batch)

@@ -2,11 +2,43 @@ import unittest
 
 import numpy as np
 
-from secret_sharing_rnd.beaver_triple import create_beaver_triples
+from secret_sharing_rnd.beaver_triple import create_beaver_triples, fill_beaver_triple_shape
 from secret_sharing_rnd.util import assert_matrix
 
 
 class TestCarloBeaverTriples(unittest.TestCase):
+
+    def test_fill_beaver_triple_shape(self):
+        X = np.array([[0.3, 0.4, 0.9],
+                      [0.1, 0.5, 0.6],
+                      [0.2, 0.7, 0.8],
+                      [0.5, 0.3, 0.1],
+                      [0.7, 0.5, 0.2]])
+
+        w = np.array([[0.3], [0.2], [0.4]])
+
+        print("X shape", X.shape)
+        print("w shape", w.shape)
+
+        op_id = "logit"
+        mul_ops = dict()
+        batch_size = 2
+        num_epoch = 3
+
+        mul_op_def = dict()
+        mul_op_def[op_id] = dict()
+        mul_op_def[op_id]["X_shape"] = X.shape
+        mul_op_def[op_id]["Y_shape"] = w.shape
+        mul_op_def[op_id]["batch_size"] = batch_size
+        mul_op_def[op_id]["mul_type"] = "matmul"
+        mul_op_def[op_id]["batch_axis"] = 0
+
+        num_batch = fill_beaver_triple_shape(mul_ops,
+                                             op_id=op_id,
+                                             X_shape=X.shape,
+                                             Y_shape=w.shape,
+                                             batch_size=batch_size,
+                                             mul_type="matmul")
 
     def test_carlo_beaver_triple_for_matmul(self):
 
